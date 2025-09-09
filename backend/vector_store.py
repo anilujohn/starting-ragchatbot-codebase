@@ -11,6 +11,7 @@ class SearchResults:
     documents: List[str]
     metadata: List[Dict[str, Any]]
     distances: List[float]
+    lesson_links: Optional[Dict[str, str]] = None  # Maps "course_title|lesson_number" to lesson_link
     error: Optional[str] = None
     
     @classmethod
@@ -95,7 +96,13 @@ class VectorStore:
                 n_results=search_limit,
                 where=filter_dict
             )
-            return SearchResults.from_chroma(results)
+            search_results = SearchResults.from_chroma(results)
+            
+            # Automatically fetch lesson links for results
+            if not search_results.is_empty():
+                search_results.lesson_links = self.get_lesson_links_for_results(search_results)
+            
+            return search_results
         except Exception as e:
             return SearchResults.empty(f"Search error: {str(e)}")
     
@@ -264,4 +271,51 @@ class VectorStore:
             return None
         except Exception as e:
             print(f"Error getting lesson link: {e}")
+            return None
+
+    def get_lesson_links_for_results(self, search_results: 'SearchResults') -> Dict[str, str]:
+        """
+        Efficiently get lesson links for all results in a search result set.
+        
+        Args:
+            search_results: SearchResults object with metadata
+            
+        Returns:
+            Dict mapping "course_title|lesson_number" to lesson_link
+        """
+        import json
+        lesson_links = {}
+        
+        # Get unique courses from results to minimize database lookups
+        courses_needed = set()
+        for meta in search_results.metadata:
+            course_title = meta.get('course_title')
+            if course_title:
+                courses_needed.add(course_title)
+        
+        # Batch fetch lesson data for all needed courses
+        for course_title in courses_needed:
+            try:
+                # Get course metadata from catalog
+                catalog_results = self.course_catalog.get(
+                    ids=[course_title],
+                    include=['metadatas']
+                )
+                
+                if catalog_results['metadatas']:
+                    lessons_json = catalog_results['metadatas'][0].get('lessons_json', '[]')
+                    lessons_data = json.loads(lessons_json)
+                    
+                    # Build lesson link mapping for this course
+                    for lesson in lessons_data:
+                        lesson_num = lesson.get('lesson_number')
+                        lesson_link = lesson.get('lesson_link')
+                        if lesson_num is not None and lesson_link:
+                            key = f"{course_title}|{lesson_num}"
+                            lesson_links[key] = lesson_link
+                            
+            except Exception as e:
+                print(f"Error fetching lesson links for {course_title}: {e}")
+        
+        return lesson_links
     
