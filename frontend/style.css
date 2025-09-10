@@ -5,23 +5,117 @@
     padding: 0;
 }
 
-/* CSS Variables */
+/* CSS Variables - Dark Theme (Default) */
 :root {
+    /* Primary colors */
     --primary-color: #2563eb;
     --primary-hover: #1d4ed8;
+    
+    /* Background colors */
     --background: #0f172a;
     --surface: #1e293b;
     --surface-hover: #334155;
+    
+    /* Text colors */
     --text-primary: #f1f5f9;
     --text-secondary: #94a3b8;
+    
+    /* Border and separator colors */
     --border-color: #334155;
+    
+    /* Message bubble colors */
     --user-message: #2563eb;
     --assistant-message: #374151;
+    
+    /* Interactive states and effects */
     --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
     --radius: 12px;
     --focus-ring: rgba(37, 99, 235, 0.2);
+    
+    /* Welcome message styling */
     --welcome-bg: #1e3a5f;
     --welcome-border: #2563eb;
+    
+    /* Additional dark theme specific colors */
+    --code-bg: rgba(0, 0, 0, 0.3);
+    --blockquote-border: #3b82f6;
+    --success-bg: rgba(34, 197, 94, 0.1);
+    --error-bg: rgba(239, 68, 68, 0.1);
+    --warning-bg: rgba(245, 158, 11, 0.1);
+    
+    /* Link and accent colors */
+    --link-color: #60a5fa;
+    --link-hover: #93c5fd;
+    --link-bg: rgba(96, 165, 250, 0.1);
+    --link-border: rgba(96, 165, 250, 0.2);
+    --link-hover-bg: rgba(96, 165, 250, 0.2);
+    --link-hover-border: rgba(96, 165, 250, 0.4);
+    
+    /* Status message text colors */
+    --success-text: #4ade80;
+    --error-text: #f87171;
+    --warning-text: #fbbf24;
+    
+    /* Visual hierarchy colors */
+    --heading-color: var(--text-primary);
+    --subheading-color: var(--text-secondary);
+    --muted-text: #64748b;
+}
+
+/* Light Theme Variables */
+[data-theme="light"] {
+    /* Primary colors - maintaining brand consistency */
+    --primary-color: #2563eb;
+    --primary-hover: #1d4ed8;
+    
+    /* Background colors - light base with subtle variations */
+    --background: #ffffff;
+    --surface: #f8fafc;
+    --surface-hover: #e2e8f0;
+    
+    /* Text colors - dark text on light background for high contrast */
+    --text-primary: #0f172a;        /* Very dark for primary text (21:1 contrast ratio) */
+    --text-secondary: #475569;      /* Medium dark for secondary text (9:1 contrast ratio) */
+    
+    /* Border and separator colors */
+    --border-color: #cbd5e1;        /* Slightly darker border for better definition */
+    
+    /* Message bubble colors */
+    --user-message: #2563eb;        /* Keep brand blue for user messages */
+    --assistant-message: #f1f5f9;   /* Light gray for assistant messages */
+    
+    /* Interactive states and effects */
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+    --focus-ring: rgba(37, 99, 235, 0.3);
+    
+    /* Welcome message styling */
+    --welcome-bg: #eff6ff;          /* Very light blue background */
+    --welcome-border: #3b82f6;      /* Slightly lighter blue border */
+    
+    /* Additional light theme specific colors */
+    --code-bg: rgba(15, 23, 42, 0.04);     /* Light code background */
+    --blockquote-border: #3b82f6;          /* Blue accent for blockquotes */
+    --success-bg: rgba(34, 197, 94, 0.1);  /* Light green for success messages */
+    --error-bg: rgba(239, 68, 68, 0.1);    /* Light red for error messages */
+    --warning-bg: rgba(245, 158, 11, 0.1); /* Light yellow for warnings */
+    
+    /* Link and accent colors for light theme */
+    --link-color: #2563eb;
+    --link-hover: #1d4ed8;
+    --link-bg: rgba(37, 99, 235, 0.08);
+    --link-border: rgba(37, 99, 235, 0.2);
+    --link-hover-bg: rgba(37, 99, 235, 0.15);
+    --link-hover-border: rgba(37, 99, 235, 0.3);
+    
+    /* Status message text colors for light theme */
+    --success-text: #059669;
+    --error-text: #dc2626;
+    --warning-text: #d97706;
+    
+    /* Visual hierarchy colors for light theme */
+    --heading-color: var(--text-primary);
+    --subheading-color: var(--text-secondary);
+    --muted-text: #94a3b8;
 }
 
 /* Base Styles */
@@ -34,6 +128,73 @@ body {
     overflow: hidden;
     margin: 0;
     padding: 0;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Enhanced transitions for theme switching - Performance optimized */
+*, *::before, *::after {
+    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                color 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Performance optimization: Use hardware acceleration for transitions */
+    will-change: background-color, color, border-color, box-shadow;
+}
+
+/* Enhanced theme transition state */
+.theme-transitioning {
+    /* Temporarily disable pointer events during transition */
+    pointer-events: none;
+}
+
+.theme-transitioning * {
+    /* Faster transitions during theme change */
+    transition-duration: 0.25s !important;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+    /* Enhanced will-change for active transitions */
+    will-change: background-color, color, border-color, box-shadow !important;
+}
+
+/* Clean up will-change after transitions complete */
+:not(.theme-transitioning) * {
+    will-change: auto;
+}
+
+/* Subtle fade overlay during theme transition */
+.theme-transitioning::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--background);
+    opacity: 0.02;
+    z-index: 9999;
+    pointer-events: none;
+    animation: fade-overlay 0.3s ease-out;
+}
+
+@keyframes fade-overlay {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        transition-duration: 0.1s !important;
+        animation-duration: 0.1s !important;
+    }
+    
+    .theme-toggle .ripple {
+        display: none;
+    }
+    
+    .theme-transitioning::before {
+        display: none;
+    }
 }
 
 /* Container - Full Screen */
@@ -46,18 +207,21 @@ body {
     padding: 0;
 }
 
-/* Header - Hidden */
+/* Header */
 header {
-    display: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
 }
 
 header h1 {
     font-size: 1.75rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--text-primary);
     margin: 0;
 }
 
@@ -65,6 +229,120 @@ header h1 {
     font-size: 0.95rem;
     color: var(--text-secondary);
     margin-top: 0.5rem;
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+    position: relative;
+    padding: 0.75rem;
+    background: var(--background);
+    border: 2px solid var(--border-color);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+}
+
+.theme-toggle:hover {
+    background: var(--surface-hover);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    transform: scale(1.05);
+}
+
+.theme-toggle:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.theme-toggle .sun-icon,
+.theme-toggle .moon-icon {
+    position: absolute;
+    transition: all 0.3s ease;
+}
+
+.theme-toggle .sun-icon {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+}
+
+.theme-toggle .moon-icon {
+    opacity: 0;
+    transform: rotate(180deg) scale(0.8);
+}
+
+[data-theme="light"] .theme-toggle .sun-icon {
+    opacity: 0;
+    transform: rotate(-180deg) scale(0.8);
+}
+
+[data-theme="light"] .theme-toggle .moon-icon {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+}
+
+/* Ripple effect for theme toggle */
+.theme-toggle {
+    position: relative;
+    overflow: hidden;
+}
+
+.theme-toggle .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.3;
+    pointer-events: none;
+    transform: scale(0);
+    animation: ripple-animation 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100px;
+    height: 100px;
+    left: 50%;
+    top: 50%;
+    margin-left: -50px;
+    margin-top: -50px;
+}
+
+@keyframes ripple-animation {
+    0% {
+        transform: scale(0);
+        opacity: 0.3;
+    }
+    50% {
+        opacity: 0.1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 0;
+    }
+}
+
+/* Enhanced theme toggle animations */
+.theme-toggle:active {
+    transform: scale(0.95);
+}
+
+.theme-toggle:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--focus-ring), 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Smooth icon transitions */
+.theme-toggle .sun-icon,
+.theme-toggle .moon-icon {
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Theme toggle pressed state */
+.theme-toggle[aria-pressed="true"] {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
 }
 
 /* Main Content Area with Sidebar */
@@ -253,10 +531,10 @@ header h1 {
 
 .source-link {
     display: inline-block;
-    color: #60a5fa;
-    background: rgba(96, 165, 250, 0.1);
+    color: var(--link-color);
+    background: var(--link-bg);
     padding: 0.4rem 0.8rem;
-    border: 1px solid rgba(96, 165, 250, 0.2);
+    border: 1px solid var(--link-border);
     border-radius: 6px;
     text-decoration: none;
     transition: all 0.2s ease;
@@ -267,11 +545,11 @@ header h1 {
 }
 
 .source-link:hover {
-    color: #93c5fd;
-    background: rgba(96, 165, 250, 0.2);
-    border-color: rgba(96, 165, 250, 0.4);
+    color: var(--link-hover);
+    background: var(--link-hover-bg);
+    border-color: var(--link-hover-border);
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(96, 165, 250, 0.2);
+    box-shadow: 0 2px 8px var(--link-border);
 }
 
 .source-link:active {
@@ -310,7 +588,7 @@ header h1 {
 }
 
 .message-content code {
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: var(--code-bg);
     padding: 0.125rem 0.25rem;
     border-radius: 3px;
     font-family: 'Fira Code', 'Consolas', monospace;
@@ -318,7 +596,7 @@ header h1 {
 }
 
 .message-content pre {
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: var(--code-bg);
     padding: 0.75rem;
     border-radius: 4px;
     overflow-x: auto;
@@ -331,7 +609,7 @@ header h1 {
 }
 
 .message-content blockquote {
-    border-left: 3px solid var(--primary);
+    border-left: 3px solid var(--blockquote-border);
     padding-left: 1rem;
     margin: 0.5rem 0;
     color: var(--text-secondary);
@@ -461,8 +739,8 @@ header h1 {
 
 /* Error Message */
 .error-message {
-    background: rgba(239, 68, 68, 0.1);
-    color: #f87171;
+    background: var(--error-bg);
+    color: var(--error-text);
     padding: 0.75rem 1.25rem;
     border-radius: 8px;
     border: 1px solid rgba(239, 68, 68, 0.2);
@@ -471,11 +749,21 @@ header h1 {
 
 /* Success Message */
 .success-message {
-    background: rgba(34, 197, 94, 0.1);
-    color: #4ade80;
+    background: var(--success-bg);
+    color: var(--success-text);
     padding: 0.75rem 1.25rem;
     border-radius: 8px;
     border: 1px solid rgba(34, 197, 94, 0.2);
+    margin: 0.5rem 0;
+}
+
+/* Warning Message */
+.warning-message {
+    background: var(--warning-bg);
+    color: var(--warning-text);
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    border: 1px solid rgba(245, 158, 11, 0.2);
     margin: 0.5rem 0;
 }
 
@@ -704,6 +992,24 @@ details[open] .suggested-header::before {
 
 /* Enhanced Responsive Design */
 @media (max-width: 768px) {
+    header {
+        padding: 1rem;
+    }
+    
+    header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .subtitle {
+        font-size: 0.85rem;
+    }
+    
+    .theme-toggle {
+        width: 40px;
+        height: 40px;
+        padding: 0.5rem;
+    }
+    
     .main-content {
         flex-direction: column;
     }
