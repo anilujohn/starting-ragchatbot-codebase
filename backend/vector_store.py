@@ -318,4 +318,44 @@ class VectorStore:
                 print(f"Error fetching lesson links for {course_title}: {e}")
         
         return lesson_links
+
+    def get_course_outline(self, course_name: str) -> Optional[Dict[str, Any]]:
+        """
+        Get complete course outline including title, link, and all lessons.
+        
+        Args:
+            course_name: Course name/title (partial matches work)
+            
+        Returns:
+            Dict with course_title, course_link, and lessons list, or None if not found
+        """
+        import json
+        try:
+            # First resolve the course name using semantic search
+            course_title = self._resolve_course_name(course_name)
+            if not course_title:
+                return None
+            
+            # Get course metadata from catalog
+            results = self.course_catalog.get(
+                ids=[course_title],
+                include=['metadatas']
+            )
+            
+            if not results['metadatas']:
+                return None
+            
+            metadata = results['metadatas'][0]
+            lessons_json = metadata.get('lessons_json', '[]')
+            lessons_data = json.loads(lessons_json)
+            
+            return {
+                "course_title": course_title,
+                "course_link": metadata.get('course_link'),
+                "lessons": lessons_data
+            }
+            
+        except Exception as e:
+            print(f"Error getting course outline: {e}")
+            return None
     

@@ -125,6 +125,67 @@ class CourseSearchTool(Tool):
         
         return "\n\n".join(formatted)
 
+
+class CourseOutlineTool(Tool):
+    """Tool for getting course outlines with title, link, and complete lesson list"""
+    
+    def __init__(self, vector_store: VectorStore):
+        self.store = vector_store
+    
+    def get_tool_definition(self) -> Dict[str, Any]:
+        """Return Anthropic tool definition for this tool"""
+        return {
+            "name": "get_course_outline",
+            "description": "Get complete course outline including title, course link, and all lessons with their numbers and titles",
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "course_name": {
+                        "type": "string",
+                        "description": "Course title (partial matches work, e.g. 'MCP', 'Introduction', 'Building')"
+                    }
+                },
+                "required": ["course_name"]
+            }
+        }
+    
+    def execute(self, course_name: str) -> str:
+        """
+        Execute the course outline tool.
+        
+        Args:
+            course_name: Course name to get outline for
+            
+        Returns:
+            Formatted course outline or error message
+        """
+        outline_data = self.store.get_course_outline(course_name)
+        
+        if not outline_data:
+            return f"No course found matching '{course_name}'"
+        
+        # Format the course outline
+        course_title = outline_data["course_title"]
+        course_link = outline_data.get("course_link", "No link available")
+        lessons = outline_data.get("lessons", [])
+        
+        formatted_outline = []
+        formatted_outline.append(f"**{course_title}**")
+        formatted_outline.append(f"Course Link: {course_link}")
+        formatted_outline.append("")
+        formatted_outline.append("**Lessons:**")
+        
+        if lessons:
+            for lesson in lessons:
+                lesson_num = lesson.get("lesson_number", "?")
+                lesson_title = lesson.get("lesson_title", "Unknown")
+                formatted_outline.append(f"{lesson_num}. {lesson_title}")
+        else:
+            formatted_outline.append("No lessons available")
+        
+        return "\n".join(formatted_outline)
+
+
 class ToolManager:
     """Manages available tools for the AI"""
     
