@@ -48,6 +48,20 @@ cd backend && uv run uvicorn app:app --reload --port 8000
 - Web Interface: `http://localhost:8000`
 - API Documentation: `http://localhost:8000/docs`
 
+### Code Quality
+```bash
+# Format code automatically
+./scripts/format_code.sh
+
+# Check code quality (formatting and linting)
+./scripts/quality_check.sh
+
+# Manual commands
+uv run black backend/ *.py        # Format with Black
+uv run ruff check backend/ *.py   # Lint with Ruff
+uv run ruff check backend/ *.py --fix  # Auto-fix Ruff issues
+```
+
 ## Key Configuration
 
 - **Python Version**: 3.13+
@@ -55,6 +69,7 @@ cd backend && uv run uvicorn app:app --reload --port 8000
 - **API Model**: Uses Claude Sonnet 4 (`claude-sonnet-4-20250514`)
 - **Vector Store**: ChromaDB with `all-MiniLM-L6-v2` embeddings
 - **Document Processing**: 800 character chunks with 100 character overlap
+- **Code Quality**: Black formatter + Ruff linter with 88-character line length
 
 ## Important Implementation Details
 
