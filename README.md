@@ -6,6 +6,8 @@ A Retrieval-Augmented Generation (RAG) system designed to answer questions about
 
 This application is a full-stack web application that enables users to query course materials and receive intelligent, context-aware responses. It uses ChromaDB for vector storage, Anthropic's Claude for AI generation, and provides a web interface for interaction.
 
+> **Demo**: This change demonstrates Claude Code GitHub Action integration!
+
 
 ## Prerequisites
 
